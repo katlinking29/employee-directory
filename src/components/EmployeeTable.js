@@ -1,39 +1,84 @@
-import React, { useContext } from "react";
-// import Employees from "../employees";
-import EmployeeContext from "../utils/EmployeeContext";
+import React, { Component } from "react"; 
+import Employee from "./Employee"; 
+import Search from "./Search"; 
+import API from "../utils/API";
 
-const EmployeeTable = () => {
-    const context = useContext(EmployeeContext);
-    return (
-        <div className="datatable mt-5">
-            <table
-                id="table"
-                className="table table-striped table-hover table-condensed"
-            >
-                <thead>
-                    <tr>
-                        {context.developerState.headings.map(({ name, width }) => {
-                            return (
-                                <th
-                                    className="col"
-                                    key={name}
-                                    style={{ width }}
-                                    onClick={() => {
-                                        context.handleSort(name.toLowerCase());
-                                    }}
-                                >
-                                    {name}
-                                    <span className="pointer"></span>
-                                </th>
-                            );
-                        })}
-                    </tr>
-                </thead>
 
-                <DataBody />
-            </table>
-        </div>
-    );
+class EmployeeTable extends Component {
+
+state = {
+  search: "", 
+  employees: [], 
+  filteredEmployees: [], 
+  sortOrder: ""
+}; 
+
+componentDidMount() {
+  API.getUsers().then(res=> this.setState({
+    employees: res.data.results,     
+  },
+  console.log(res)))
+}; 
+
+handleSearch = e => {
+  e.preventDefault();
+  const { employees, search } = this.state;
+
+  const filteredEmployees = employees.filter(employee => employee.name.first.includes(search));
+
+  this.setState({
+      filteredEmployees
+  });
 }
 
-export default DataTable;
+handleInputChange = e => {
+  const employees = this.state.employees;
+  const search = e.target.value; 
+  const filteredEmployees = employees.filter(employee => employee.name.first.indexOf(search));
+
+  this.setState({
+    filteredEmployees
+  }); 
+}
+
+sortName = () => {
+  const sortEmployees = this.state.filteredEmployees; 
+
+  if (this.state.order === "ascending") {
+    const sorted = sortEmployees.sort((a, b) => (a.name.first > b.name.first) ? 1: -1);
+    console.log(sorted);
+
+    this.setState({
+      filteredEmployees: sorted,
+      order: "descending"
+    });
+  }
+
+  else {
+    const sorted = sortEmployees.sort((a, b) => (a.name.first > b.name.first) ? -1 : 1)
+    console.log(sorted); 
+
+    this.setState({
+      filteredEmployees: sorted, 
+      order: "ascending"
+    });
+  }
+}; 
+
+render() {
+  return (
+    <div>
+      <Search 
+        employee = {this.state.filteredEmployees}
+        handleInputChange = {this.handleInputChange}
+        handleSearch = {this.handleSearch}>
+      </Search>
+      <Employee 
+        results = {this.state.employees}
+        sortName = {this.sortName}>
+      </Employee>
+    </div>
+  )
+}}
+
+export default EmployeeTable; 

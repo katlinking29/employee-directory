@@ -1,21 +1,24 @@
-import React, { useContext } from "react";
+import React from "react";
 import "../styles/search.css";
-import EmployeeContext from "../utils/EmployeeContext";
 
 
-function Search() {
-    const context = useContext(EmployeeContext);
+function Search(props) {
   return (
     <div className="search">
     <form className="form-inline">
         <input
             className="form-control mr-sm-2"
-            type="search"
+            type="text"
             placeholder="Employee Name"
-            aria-label="Search"
-            onChange={e => context.handleSearchChange(e)}
+            value={props.value}
+            name="search"
+            onChange={props.handleInputChange}
         />
-        <button className="btn my-2 my-sm-0" type="submit">
+        <button 
+            className="btn my-2 my-sm-0" 
+            type="submit"
+            onClick={props.handleSearch}
+            >
             Search
          </button>
     </form>
